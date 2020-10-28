@@ -2,11 +2,18 @@ const express = require('express');
 const app = express(); 
 const cors = require('cors');
 const pool = require('./db');
+const path = require('path');
+const PORT = process.env.PORT || 5000;
 
 // middleware
 app.use(cors());
-// allows us to access req.body
-app.use(express.json());
+app.use(express.json());  // allows us to access req.body
+
+if (process.env.NODE_ENV === "production") {
+    // server static content
+    // npm run build
+    app.use(express.static(path.join(__dirname, "client/build")));    
+}
 
 // ROUTES
 
@@ -92,7 +99,12 @@ app.delete('/todos', async(req, res) => {
     }
 })
 
+// catch all method
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, "client/build/index.html"));
+});
+
 // port number
-app.listen(5000, () => {
-    console.log("Server has started on port 5000");
+app.listen(PORT, () => {
+    console.log(`Server has started on port ${PORT}`);
 })
